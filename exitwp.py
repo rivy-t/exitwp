@@ -37,6 +37,7 @@ item_field_filter = config['item_field_filter']
 date_fmt = config['date_format']
 body_replace = config['body_replace']
 
+default_date = '2001-01-01 00:00:00'
 
 # Time definitions
 ZERO = timedelta(0)
@@ -211,7 +212,10 @@ def write_jekyll(data, target_format):
         else:
             uid = []
             if (date_prefix):
-                dt = datetime.strptime(item['date'], date_fmt)
+                try:
+                    dt = datetime.strptime(item['date'], date_fmt)
+                except:
+                    dt = datetime.strptime(default_date, date_fmt)
                 uid.append(dt.strftime('%Y-%m-%d'))
                 uid.append('-')
             s_title = item['slug']
@@ -288,12 +292,15 @@ def write_jekyll(data, target_format):
         sys.stdout.write('.')
         sys.stdout.flush()
         out = None
+        try:
+            date = datetime.strptime(i['date'], '%Y-%m-%d %H:%M:%S').replace(tzinfo=UTC())
+        except:
+            date = datetime.strptime(default_date, '%Y-%m-%d %H:%M:%S').replace(tzinfo=UTC())
         yaml_header = {
             'title': i['title'],
             'link': i['link'],
             'author': i['author'],
-            'date': datetime.strptime(
-                i['date'], '%Y-%m-%d %H:%M:%S').replace(tzinfo=UTC()),
+            'date': date,
             'slug': i['slug'],
             'wordpress_id': int(i['wp_id']),
             'comments': i['comments'],
